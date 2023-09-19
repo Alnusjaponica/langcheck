@@ -17,7 +17,7 @@ from langcheck.eval.ja._tokenizers import _JapaneseTokenizer
      pytest.param(MeCabTokenizer, marks=pytest.mark.optional)])
 def test_janome_tokenizer(text: str, expected_tokens: List[str],
                           tokenizer: _JapaneseTokenizer) -> None:
-    tokenizer = tokenizer()
+    tokenizer = tokenizer()  # type: ignore[reportGeneralTypeIssues]
     assert tokenizer.tokenize(text) == expected_tokens
 
 

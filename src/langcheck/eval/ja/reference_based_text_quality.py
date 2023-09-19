@@ -46,8 +46,18 @@ def semantic_sim(generated_outputs: List[str],
     # https://tech.yellowback.net/posts/sentence-transformers-japanese-models
     model = SentenceTransformer(
         'sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
-    generated_embeddings = model.encode(generated_outputs)
-    reference_embeddings = model.encode(reference_outputs)
+    generated_embeddings = model.encode(generated_outputs,
+                                        convert_to_tensor=True)
+    reference_embeddings = model.encode(reference_outputs,
+                                        convert_to_tensor=True)
+    # The following assertions are to ensure pyright type-checker compatibility.
+    # SentenceTransformer.encode() returns different type according to the
+    # arguments, which is not pyright type-checker friendly. It always returns
+    # a torch.Tensor if `convert_to_tensor=True`.
+    # In addition, the `pairwise_cos_sim()` function expects torch.Tensor as
+    # input but works as long as it is Tensor compatible (e.g. List[Tensor]).
+    assert isinstance(generated_embeddings, torch.Tensor)
+    assert isinstance(reference_embeddings, torch.Tensor)
     cosine_scores = util.pairwise_cos_sim(generated_embeddings,
                                           reference_embeddings)
     # Numerical instability can cause the dot product of almost identical

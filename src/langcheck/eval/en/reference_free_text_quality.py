@@ -2,7 +2,9 @@ from typing import List, Optional
 
 import torch
 from detoxify import Detoxify
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers.models.auto.modeling_auto import \
+    AutoModelForSequenceClassification
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from langcheck._hangle_logs import _handle_logging_level
 from langcheck.eval.eval_value import EvalValue

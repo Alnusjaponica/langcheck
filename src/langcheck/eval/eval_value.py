@@ -19,12 +19,14 @@ class EvalValue(Generic[NumericType]):
     prompts: Optional[List[str]]
     generated_outputs: List[str]
     reference_outputs: Optional[List[str]]
+    sources: Optional[List[str]]
     language: Optional[str]
 
     def to_df(self) -> pd.DataFrame:
         '''Returns a DataFrame of metric values for each data point.'''
         dataframe_cols = {
             'prompt': self.prompts,
+            'source': self.sources,
             'generated_output': self.generated_outputs,
             'reference_output': self.reference_outputs,
             'metric_value': self.metric_values,
@@ -33,16 +35,21 @@ class EvalValue(Generic[NumericType]):
         return pd.DataFrame(dataframe_cols)
 
     def __str__(self) -> str:
-        '''Returns a string representation of an EvalValue object.'''
+        '''Returns a string representation of an
+        :class:`~langcheck.eval.eval_value.EvalValue` object.
+        '''
         return (f'Metric: {self.metric_name}\n'
                 f'{self.to_df()}')
 
     def __repr__(self) -> str:
-        '''Returns a string representation of an EvalValue object.'''
+        '''Returns a string representation of an
+        :class:`~langcheck.eval.eval_value.EvalValue` object.
+        '''
         return str(self)
 
     def _repr_html_(self) -> str:
-        '''Returns an HTML representation of an EvalValue object, which is
+        '''Returns an HTML representation of an
+        :class:`~langcheck.eval.eval_value.EvalValue`, which is
         automatically called by Jupyter notebooks.
         '''
         return (f'Metric: {self.metric_name}<br>'
@@ -91,15 +98,49 @@ class EvalValue(Generic[NumericType]):
                                       threshold=threshold,
                                       threshold_op='!=')
 
+    def all(self) -> bool:
+        '''Equivalent to all(eval_value.metric_values). This is mostly useful
+        for binary metric functions.
+        '''
+        return all(self.metric_values)
+
+    def any(self) -> bool:
+        '''Equivalent to any(eval_value.metric_values). This is mostly useful
+        for binary metric functions.
+        '''
+        return any(self.metric_values)
+
     def __bool__(self):
         raise ValueError('An EvalValue cannot be used as a boolean. '
-                         'Try an expression like `eval_value > 0.5` instead.')
+                         'Try an expression like `eval_value > 0.5`, '
+                         '`eval_value.all()`, or `eval_value.any()` instead.')
+
+    def scatter(self):
+        '''Shows an interactive scatter plot of all data points in EvalValue.
+        Intended to be used in a Jupyter notebook.
+
+        This is a convenience function that calls
+        :func:`langcheck.plot.scatter()`.
+        '''
+        from langcheck.plot import scatter
+        return scatter(self)
+
+    def histogram(self):
+        '''Shows an interactive histogram of all data points in EvalValue.
+        Intended to be used in a Jupyter notebook.
+
+        This is a convenience function that calls
+        :func:`langcheck.plot.histogram()`.
+        '''
+        from langcheck.plot import histogram
+        return histogram(self)
 
 
 @dataclass
 class EvalValueWithThreshold(EvalValue):
-    '''A rich object that is the output of comparing an EvalValue object, e.g.
-    `eval_value >= 0.5`.
+    '''A rich object that is the output of comparing an
+    :class:`~langcheck.eval.eval_value.EvalValue` object,
+    e.g. `eval_value >= 0.5`.
     '''
     threshold: float | int
     threshold_op: str  # One of '<', '<=', '>', '>=', '==', '!='
@@ -151,17 +192,22 @@ class EvalValueWithThreshold(EvalValue):
         return dataframe
 
     def __str__(self) -> str:
-        '''Returns a string representation of an EvalValue object.'''
+        '''Returns a string representation of an
+        :class:`~langcheck.eval.eval_value.EvalValue`.
+        '''
         return (f'Metric: {self.metric_name}\n'
                 f'Pass Rate: {round(self.pass_rate*100, 2)}%\n'
                 f'{self.to_df()}')
 
     def __repr__(self) -> str:
-        '''Returns a string representation of an EvalValue object.'''
+        '''Returns a string representation of an
+        :class:`~langcheck.eval.eval_value.EvalValue` object.
+        '''
         return str(self)
 
     def _repr_html_(self) -> str:
-        '''Returns an HTML representation of an EvalValue object, which is
+        '''Returns an HTML representation of an
+        :class:`~langcheck.eval.eval_value.EvalValue`, which is
         automatically called by Jupyter notebooks.
         '''
         return (f'Metric: {self.metric_name}<br>'

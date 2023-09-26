@@ -1,22 +1,26 @@
 import math
-from typing import Any, Optional, Union
+from copy import deepcopy
+from typing import Optional
 
 import plotly.express as px
 from dash import Dash, Input, Output, dcc, html
 from pandas.core.indexes.base import Index
 
-from langcheck.eval import EvalValue
+from langcheck.eval.eval_value import EvalValue
+from langcheck.plot._css import GLOBAL_CSS, INPUT_CSS, NUM_RESULTS_CSS
 
 
 def scatter(eval_value: EvalValue,
             other_eval_value: Optional[EvalValue] = None) -> None:
-    '''Shows an interactive scatter plot of all data points in an EvalValue.
+    '''Shows an interactive scatter plot of all data points in an
+    :class:`~langcheck.eval.eval_value.EvalValue`.
     Intended to be used in a Jupyter notebook.
 
     Args:
-        eval_value: The EvalValue to plot.
-        other_eval_value: If provided, another EvalValue to plot on the same
-            chart.
+        eval_value: The :class:`~langcheck.eval.eval_value.EvalValue` to plot.
+        other_eval_value:
+            If provided, another :class:`~langcheck.eval.eval_value.EvalValue`
+            to plot on the same schart.
     '''
     if other_eval_value is None:
         _scatter_one_eval_value(eval_value)
@@ -25,7 +29,8 @@ def scatter(eval_value: EvalValue,
 
 
 def _scatter_one_eval_value(eval_value: EvalValue) -> None:
-    '''Shows an interactive scatter plot of all data points in one EvalValue.
+    '''Shows an interactive scatter plot of all data points in one
+    :class:`~langcheck.eval.eval_value.EvalValue`.
     Intended to be used in a Jupyter notebook.
     '''
     # Rename some EvalValue fields for display
@@ -33,54 +38,76 @@ def _scatter_one_eval_value(eval_value: EvalValue) -> None:
     df.rename(columns={'metric_value': eval_value.metric_name}, inplace=True)
     df['prompt'] = df['prompt'].fillna('None')
     df['reference_output'] = df['reference_output'].fillna('None')
+    df['source'] = df['source'].fillna('None')
 
     # Define layout of the Dash app (chart + search boxes)
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div([
-            html.Label('Filter generated_outputs: ',
-                       style={'background-color': 'white'}),
+            html.Label('Filter generated_outputs: '),
             dcc.Input(id='filter_generated_outputs',
                       type='text',
-                      placeholder='Type to search...'),
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
         ]),
         html.Div([
-            html.Label('Filter prompts: ', style={'background-color': 'white'}),
+            html.Label('Filter reference_outputs: '),
+            dcc.Input(id='filter_reference_outputs',
+                      type='text',
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
+        ]),
+        html.Div([
+            html.Label('Filter prompts: '),
             dcc.Input(id='filter_prompts',
                       type='text',
-                      placeholder='Type to search...'),
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
         ]),
         html.Div([
-            html.Span(id='num_results_message',
-                      style={
-                          'background-color': 'white',
-                          'font-style': 'italic'
-                      })
+            html.Label('Filter sources: '),
+            dcc.Input(id='filter_sources',
+                      type='text',
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
         ]),
+        html.Div([html.Span(id='num_results_message', style=NUM_RESULTS_CSS)]),
         dcc.Graph(
             id='scatter_plot',
             config={
                 'displaylogo': False,
                 'modeBarButtonsToRemove': ['select', 'lasso2d', 'resetScale']
             })
-    ])
+    ],
+                          style=GLOBAL_CSS)
 
     # This function gets called whenever the user types in the search boxes
     @app.callback(Output('scatter_plot', 'figure'),
                   Output('num_results_message', 'children'),
                   Input('filter_generated_outputs', 'value'),
-                  Input('filter_prompts', 'value'))
-    def update_figure(filter_generated_outputs, filter_prompts):
+                  Input('filter_reference_outputs', 'value'),
+                  Input('filter_prompts', 'value'),
+                  Input('filter_sources', 'value'))
+    def update_figure(filter_generated_outputs, filter_reference_outputs,
+                      filter_prompts, filter_sources):
         # Filter data points based on search boxes, case-insensitive
         filtered_df = df.copy()
         if filter_generated_outputs:
             filtered_df = filtered_df[
                 filtered_df['generated_output'].str.lower().str.contains(
                     filter_generated_outputs.lower())]
+        if filter_reference_outputs:
+            filtered_df = filtered_df[
+                filtered_df['reference_output'].str.lower().str.contains(
+                    filter_reference_outputs.lower())]
         if filter_prompts:
             filtered_df = filtered_df[
                 filtered_df['prompt'].str.lower().str.contains(
                     filter_prompts.lower())]
+        if filter_sources:
+            filtered_df = filtered_df[
+                filtered_df['source'].str.lower().str.contains(
+                    filter_sources.lower())]
 
         # Configure the actual scatter plot
         fig = px.scatter(filtered_df,
@@ -118,7 +145,8 @@ def _scatter_one_eval_value(eval_value: EvalValue) -> None:
 
 def _scatter_two_eval_values(eval_value: EvalValue,
                              other_eval_value: EvalValue) -> None:
-    '''Shows an interactive scatter plot of all data points in two EvalValues.
+    '''Shows an interactive scatter plot of all data points in two
+    :class:`~langcheck.eval.eval_value.EvalValue`.
     Intended to be used in a Jupyter notebook.
     '''
     # Validate that the two EvalValues have the same data points
@@ -130,8 +158,13 @@ def _scatter_two_eval_values(eval_value: EvalValue,
         raise ValueError('Both EvalValues must have the same reference_outputs')
     if eval_value.language != other_eval_value.language:
         raise ValueError('Both EvalValues must have the same language')
+
+    # Append "(other)" to the metric name of the second EvalValue if necessary.
+    # (It's possible to plot two EvalValues from the same metric, e.g. if you
+    # compute semantic_sim() with a local model and an OpenAI model)
     if eval_value.metric_name == other_eval_value.metric_name:
-        raise ValueError('Both EvalValues must have different metric_names')
+        other_eval_value = deepcopy(other_eval_value)
+        other_eval_value.metric_name += ' (other)'
 
     # Rename some EvalValue fields for display
     df = eval_value.to_df()
@@ -139,54 +172,76 @@ def _scatter_two_eval_values(eval_value: EvalValue,
     df[other_eval_value.metric_name] = other_eval_value.to_df()['metric_value']
     df['prompt'] = df['prompt'].fillna('None')
     df['reference_output'] = df['reference_output'].fillna('None')
+    df['source'] = df['source'].fillna('None')
 
     # Define layout of the Dash app (chart + search boxes)
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div([
-            html.Label('Filter generated_outputs: ',
-                       style={'background-color': 'white'}),
+            html.Label('Filter generated_outputs: '),
             dcc.Input(id='filter_generated_outputs',
                       type='text',
-                      placeholder='Type to search...'),
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
         ]),
         html.Div([
-            html.Label('Filter prompts: ', style={'background-color': 'white'}),
+            html.Label('Filter reference_outputs: '),
+            dcc.Input(id='filter_reference_outputs',
+                      type='text',
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
+        ]),
+        html.Div([
+            html.Label('Filter prompts: '),
             dcc.Input(id='filter_prompts',
                       type='text',
-                      placeholder='Type to search...'),
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
         ]),
         html.Div([
-            html.Span(id='num_results_message',
-                      style={
-                          'background-color': 'white',
-                          'font-style': 'italic'
-                      })
+            html.Label('Filter sources: '),
+            dcc.Input(id='filter_sources',
+                      type='text',
+                      placeholder='Type to search...',
+                      style=INPUT_CSS),
         ]),
+        html.Div([html.Span(id='num_results_message', style=NUM_RESULTS_CSS)]),
         dcc.Graph(
             id='scatter_plot',
             config={
                 'displaylogo': False,
                 'modeBarButtonsToRemove': ['select', 'lasso2d', 'resetScale']
             })
-    ])
+    ],
+                          style=GLOBAL_CSS)
 
     # This function gets called whenever the user types in the search boxes
     @app.callback(Output('scatter_plot', 'figure'),
                   Output('num_results_message', 'children'),
                   Input('filter_generated_outputs', 'value'),
-                  Input('filter_prompts', 'value'))
-    def update_figure(filter_generated_outputs, filter_prompts):
+                  Input('filter_reference_outputs', 'value'),
+                  Input('filter_prompts', 'value'),
+                  Input('filter_sources', 'value'))
+    def update_figure(filter_generated_outputs, filter_reference_outputs,
+                      filter_prompts, filter_sources):
         # Filter data points based on search boxes, case-insensitive
         filtered_df = df.copy()
         if filter_generated_outputs:
             filtered_df = filtered_df[
                 filtered_df['generated_output'].str.lower().str.contains(
                     filter_generated_outputs.lower())]
+        if filter_reference_outputs:
+            filtered_df = filtered_df[
+                filtered_df['reference_output'].str.lower().str.contains(
+                    filter_reference_outputs.lower())]
         if filter_prompts:
             filtered_df = filtered_df[
                 filtered_df['prompt'].str.lower().str.contains(
                     filter_prompts.lower())]
+        if filter_sources:
+            filtered_df = filtered_df[
+                filtered_df['source'].str.lower().str.contains(
+                    filter_sources.lower())]
 
         # Configure the actual scatter plot
         # (We need to explicitly add the index column into hover_data here.

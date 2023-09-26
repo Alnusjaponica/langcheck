@@ -24,8 +24,9 @@ def semantic_sim(generated_outputs: List[str],
     Args:
         generated_outputs: A list of model generated outputs to evaluate
         reference_outputs: A list of reference outputs
+
     Returns:
-        An EvalValue object
+        An :class:`~langcheck.eval.eval_value.EvalValue` object.
     '''
 
     if len(generated_outputs) != len(reference_outputs):
@@ -37,6 +38,7 @@ def semantic_sim(generated_outputs: List[str],
                          prompts=None,
                          generated_outputs=[],
                          reference_outputs=[],
+                         sources=None,
                          metric_values=[],
                          language='ja')
     # According to the blog post,
@@ -60,6 +62,7 @@ def semantic_sim(generated_outputs: List[str],
                      prompts=None,
                      generated_outputs=generated_outputs,
                      reference_outputs=reference_outputs,
+                     sources=None,
                      metric_values=cosine_scores.tolist(),
                      language='ja')
 
@@ -76,6 +79,7 @@ def rouge1(generated_outputs: List[str],
 
     Ref:
         https://github.com/google-research/google-research/tree/master/rouge
+
     Args:
         generated_outputs: A list of model generated outputs to evaluate
         reference_outputs: A list of reference outputs
@@ -91,6 +95,7 @@ def rouge1(generated_outputs: List[str],
                      prompts=None,
                      generated_outputs=generated_outputs,
                      reference_outputs=reference_outputs,
+                     sources=None,
                      metric_values=scores,
                      language='ja')
 
@@ -123,6 +128,7 @@ def rouge2(generated_outputs: List[str],
                      prompts=None,
                      generated_outputs=generated_outputs,
                      reference_outputs=reference_outputs,
+                     sources=None,
                      metric_values=scores,
                      language='ja')
 
@@ -165,6 +171,7 @@ def rougeL(generated_outputs: List[str],
                      prompts=None,
                      generated_outputs=generated_outputs,
                      reference_outputs=reference_outputs,
+                     sources=None,
                      metric_values=scores,
                      language='ja')
 

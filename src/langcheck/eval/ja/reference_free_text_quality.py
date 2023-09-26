@@ -5,7 +5,7 @@ from transformers.models.auto.modeling_auto import \
     AutoModelForSequenceClassification
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from langcheck._hangle_logs import _handle_logging_level
+from langcheck._handle_logs import _handle_logging_level
 from langcheck.eval.eval_value import EvalValue
 
 _sentiment_model_path = "cardiffnlp/twitter-xlm-roberta-base-sentiment-multilingual"  # NOQA E501
@@ -28,7 +28,7 @@ def sentiment(generated_outputs: List[str],
             Prompts are not evaluated and only used as metadata.
 
     Returns:
-        An EvalValue object
+        An :class:`~langcheck.eval.eval_value.EvalValue` object.
     '''
     global _sentiment_tokenizer, _sentiment_model
 
@@ -57,5 +57,6 @@ def sentiment(generated_outputs: List[str],
                      prompts=prompts,
                      generated_outputs=generated_outputs,
                      reference_outputs=None,
+                     sources=None,
                      metric_values=scores,
                      language='ja')

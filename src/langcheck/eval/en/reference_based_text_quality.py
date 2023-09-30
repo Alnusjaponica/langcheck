@@ -114,15 +114,15 @@ def semantic_sim(
                 input=generated_outputs, **openai_args)
             ref_embed_response = openai.Embedding.create(
                 input=reference_outputs, **openai_args)
-        generated_embeddings = [
-            item['embedding'] for item in gen_embed_response['data']
-        ]
+        generated_embeddings = [[
+            item['embedding'] for item in list(gen_embed_response['data'])
+        ]]
         reference_embeddings = [
             item['embedding'] for item in ref_embed_response['data']
         ]
 
-    cosine_scores = util.pairwise_cos_sim(generated_embeddings,
-                                          reference_embeddings)
+    cosine_scores = util.pairwise_cos_sim(torch.tensor(generated_embeddings),
+                                          torch.tensor(reference_embeddings))
     # Numerical instability can cause the dot product of almost identical
     # vectors to exceed 1.0 slightly, so we clip the outputs
     cosine_scores = torch.clamp(cosine_scores, -1.0, 1.0)

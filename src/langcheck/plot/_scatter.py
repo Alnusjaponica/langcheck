@@ -1,9 +1,10 @@
 import math
 from copy import deepcopy
-from typing import Optional
+from typing import Any, Optional, Union
 
 import plotly.express as px
 from dash import Dash, Input, Output, dcc, html
+from pandas import DataFrame
 from pandas.core.indexes.base import Index
 
 from langcheck.eval.eval_value import EvalValue
@@ -248,7 +249,7 @@ def _scatter_two_eval_values(eval_value: EvalValue,
         # Unfortunately it's not possible to make "index" show up at the top of
         # the tooltip like _scatter_one_eval_value() since Plotly always
         # displays the x and y values at the top.)
-        hover_data: dict[str, Union[bool, Index[Any]]] = {
+        hover_data: dict[str, Union[bool, Index]] = {
             col: True for col in filtered_df.columns
         }
         hover_data['index'] = filtered_df.index

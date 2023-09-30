@@ -3,7 +3,9 @@ from typing import List
 import nltk
 import torch
 import torch.nn as nn
-from transformers import AutoConfig, AutoModelForSeq2SeqLM, AutoTokenizer
+from transformers.models.auto.configuration_auto import AutoConfig
+from transformers.models.auto.modeling_auto import AutoModelForSeq2SeqLM
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from langcheck.eval.eval_value import EvalValue
 

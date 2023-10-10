@@ -40,6 +40,13 @@ source_suffix = ['.rst', '.md']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_book_theme'
+html_theme_options = {'show_toc_level': 2}
 html_static_path = ['_static']
 html_css_files = ['custom.css']
 html_title = 'LangCheck ✅'
+html_theme_options = {
+    "logo": {
+        "image_light": "_static/LangCheck-Logo-horizontal.png",
+        "image_dark": "_static/LangCheck-Logo-White-horizontal.png",
+    }
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langcheck"
-version = "0.0.3"
+version = "0.0.5"
 description = "Simple, Pythonic building blocks to evaluate LLM-based applications"
 readme = "README.md"
 authors = [{ name = "Citadel AI", email = "info@citadel.co.jp" }]
@@ -24,6 +24,7 @@ dependencies = [
     'plotly >= 5',
     'rouge_score >= 0.1.2',
     'sentence_transformers >= 2',
+    'sentencepiece>=0.1.95',
     'tomli; python_version < "3.11"',
     'torch >= 2',
     'transformers >= 4.6'

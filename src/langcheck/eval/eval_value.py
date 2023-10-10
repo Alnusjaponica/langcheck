@@ -115,7 +115,7 @@ class EvalValue(Generic[NumericType]):
                          'Try an expression like `eval_value > 0.5`, '
                          '`eval_value.all()`, or `eval_value.any()` instead.')
 
-    def scatter(self, jupyter_mode: str = 'inline'):
+    def scatter(self, jupyter_mode: str = 'inline') -> None:
         '''Shows an interactive scatter plot of all data points in EvalValue.
         Intended to be used in a Jupyter notebook.
 
@@ -125,7 +125,7 @@ class EvalValue(Generic[NumericType]):
         from langcheck.plot import scatter
         return scatter(self, jupyter_mode=jupyter_mode)
 
-    def histogram(self, jupyter_mode: str = 'inline'):
+    def histogram(self, jupyter_mode: str = 'inline') -> None:
         '''Shows an interactive histogram of all data points in EvalValue.
         Intended to be used in a Jupyter notebook.
 
@@ -145,7 +145,7 @@ class EvalValueWithThreshold(EvalValue):
     threshold: float | int
     threshold_op: str  # One of '<', '<=', '>', '>=', '==', '!='
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         '''Computes self.pass_rate and self.threshold_results based on the
         constructor arguments.
         '''

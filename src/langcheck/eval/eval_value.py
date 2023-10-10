@@ -7,6 +7,8 @@ from typing import Generic, List, Optional, TypeVar
 
 import pandas as pd
 
+from langcheck.plot import histogram, scatter
+
 # Metrics take on float or integer values
 NumericType = TypeVar('NumericType', float, int)
 
@@ -122,7 +124,6 @@ class EvalValue(Generic[NumericType]):
         This is a convenience function that calls
         :func:`langcheck.plot.scatter()`.
         '''
-        from langcheck.plot import scatter
         return scatter(self, jupyter_mode=jupyter_mode)
 
     def histogram(self, jupyter_mode: str = 'inline') -> None:
@@ -132,7 +133,6 @@ class EvalValue(Generic[NumericType]):
         This is a convenience function that calls
         :func:`langcheck.plot.histogram()`.
         '''
-        from langcheck.plot import histogram
         return histogram(self, jupyter_mode=jupyter_mode)
 
 

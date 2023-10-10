@@ -96,23 +96,18 @@ def _scatter_one_eval_value(eval_value: EvalValue, jupyter_mode: str) -> None:
     def update_figure(filter_generated_outputs, filter_reference_outputs,
                       filter_prompts, filter_sources):
         # Filter data points based on search boxes, case-insensitive
-        filtered_df = df.copy()
         if filter_generated_outputs:
-            filtered_df = filtered_df[
-                filtered_df['generated_output'].str.lower().str.contains(
-                    filter_generated_outputs.lower())]
+            filtered_df = df[df['generated_output'].str.lower().str.contains(
+                filter_generated_outputs.lower())]
         if filter_reference_outputs:
-            filtered_df = filtered_df[
-                filtered_df['reference_output'].str.lower().str.contains(
-                    filter_reference_outputs.lower())]
+            filtered_df = df[df['reference_output'].str.lower().str.contains(
+                filter_reference_outputs.lower())]
         if filter_prompts:
-            filtered_df = filtered_df[
-                filtered_df['prompt'].str.lower().str.contains(
-                    filter_prompts.lower())]
+            filtered_df = df[df['prompt'].str.lower().str.contains(
+                filter_prompts.lower())]
         if filter_sources:
-            filtered_df = filtered_df[
-                filtered_df['source'].str.lower().str.contains(
-                    filter_sources.lower())]
+            filtered_df = df[df['source'].str.lower().str.contains(
+                filter_sources.lower())]
 
         # Configure the actual scatter plot
         fig = px.scatter(filtered_df,

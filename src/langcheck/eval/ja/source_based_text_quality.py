@@ -90,13 +90,18 @@ def factual_consistency(
             'translation', model=_factual_consistency_translation_model_path)
 
     # Translate the sources and generated outputs to English.
+    pipeline_output_sources = _factual_consistency_translation_pipeline(sources)
+    pipeline_output_generated_outputs = _factual_consistency_translation_pipeline(
+        generated_outputs)
     en_source = [
         d['translation_text']
-        for d in _factual_consistency_translation_pipeline(sources)
+        for d in pipeline_output_sources
+        if isinstance(d, dict)
     ]
     en_generated_outputs = [
         d['translation_text']
-        for d in _factual_consistency_translation_pipeline(generated_outputs)
+        for d in pipeline_output_generated_outputs
+        if isinstance(d, dict)
     ]
     # Compute the factual consistency scores in English.
     factual_consistency_scores = en_factual_consistency(

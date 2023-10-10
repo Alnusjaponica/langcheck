@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from transformers import pipeline
+from transformers.pipelines import pipeline
 
 from langcheck.eval.en.source_based_text_quality import \
     factual_consistency as en_factual_consistency

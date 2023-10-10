@@ -85,6 +85,9 @@ def semantic_sim(
                 input=generated_outputs, **openai_args)
             ref_embed_response = openai.Embedding.create(
                 input=reference_outputs, **openai_args)
+        # This sanity check is necessary to pass pyright since the openai library is not typed.
+        assert isinstance(gen_embed_response, dict)
+        assert isinstance(ref_embed_response, dict)
         generated_embeddings = [[
             item['embedding'] for item in list(gen_embed_response['data'])
         ]]

@@ -44,7 +44,7 @@ def test_factual_consistency_openai(generated_outputs, sources):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = factual_consistency(generated_outputs,
                                            sources,

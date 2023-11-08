@@ -34,7 +34,7 @@ def test_sentiment_openai(generated_outputs):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = sentiment(generated_outputs, model_type='openai')
         # "Positive" gets a value of 1.0
@@ -66,7 +66,7 @@ def test_fluency_openai(generated_outputs):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = fluency(generated_outputs, model_type='openai')
         # "Good" gets a value of 1.0
@@ -98,7 +98,7 @@ def test_toxicity_openai(generated_outputs):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = toxicity(generated_outputs, model_type='openai')
         # "5" gets a value of 1.0
@@ -175,7 +175,7 @@ def test_ai_disclaimer_similarity_openai(generated_outputs):
     mock_embedding_response = {'data': [{'embedding': [0.1, 0.2, 0.3]}]}
     # Calling the openai.Embedding.create method requires an OpenAI API key, so
     # we mock the return value instead
-    with patch('openai.Embedding.create',
+    with patch('openai.resources.Embeddings.create',
                Mock(return_value=mock_embedding_response)):
         metric_value = ai_disclaimer_similarity(generated_outputs,
                                                 embedding_model_type='openai')

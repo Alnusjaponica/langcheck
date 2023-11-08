@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 import torch
 from rouge_score import rouge_scorer
 from sentence_transformers import SentenceTransformer, util
@@ -72,15 +74,11 @@ def semantic_similarity(
         reference_embeddings = model.encode(reference_outputs)
     else:  # openai
         if openai_args is None:
-            gen_embed_response = openai.Embedding.create(
-                input=generated_outputs, model='text-embedding-ada-002')
-            ref_embed_response = openai.Embedding.create(
-                input=reference_outputs, model='text-embedding-ada-002')
+            gen_embed_response = client.embeddings.create(input=generated_outputs, model='text-embedding-ada-002')
+            ref_embed_response = client.embeddings.create(input=reference_outputs, model='text-embedding-ada-002')
         else:
-            gen_embed_response = openai.Embedding.create(
-                input=generated_outputs, **openai_args)
-            ref_embed_response = openai.Embedding.create(
-                input=reference_outputs, **openai_args)
+            gen_embed_response = client.embeddings.create(input=generated_outputs, **openai_args)
+            ref_embed_response = client.embeddings.create(input=reference_outputs, **openai_args)
         generated_embeddings = [
             item['embedding'] for item in gen_embed_response['data']
         ]

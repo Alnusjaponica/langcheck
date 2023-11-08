@@ -35,7 +35,7 @@ def test_sentiment_openai(generated_outputs):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = sentiment(generated_outputs, model_type='openai')
         # "Positive" gets a value of 1.0
@@ -63,7 +63,7 @@ def test_toxicity_openai(generated_outputs):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = toxicity(generated_outputs, model_type='openai')
         # "5" gets a value of 1.0
@@ -93,7 +93,7 @@ def test_fluency_openai(generated_outputs):
     }
     # Calling the openai.ChatCompletion.create method requires an OpenAI API
     # key, so we mock the return value instead
-    with patch('openai.ChatCompletion.create',
+    with patch('openai.resources.chat.Completions.create',
                Mock(return_value=mock_chat_response)):
         metric_value = fluency(generated_outputs, model_type='openai')
         # "Good" gets a value of 1.0

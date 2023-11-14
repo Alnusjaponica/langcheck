@@ -25,18 +25,24 @@ def change_case(
     '''
 
     instances = [instances] if isinstance(instances, str) else instances
-    perturbed_instances = []
-    for instance in instances:
-        for _ in range(num_perturbations):
-            perturbed_instance = ''
-            for char in instance:
-                if random.random() > aug_char_p:
-                    perturbed_instance += char  # No augmentation
-                else:
-                    if to_case == 'uppercase':
-                        perturbed_instance += char.upper()
-                    else:
-                        perturbed_instance += char.lower()
-            perturbed_instances.append(perturbed_instance)
+    perturbed_instances = map(
+        lambda x: _perturb_instance(x, to_case, aug_char_p, num_perturbations),
+        instances)
+    return sum(perturbed_instances, [])
 
-    return perturbed_instances
+
+def _perturb_char(char, to_case, aug_char_p):
+    if random.random() > aug_char_p:
+        return char  # No augmentation
+    if to_case == 'uppercase':
+        return char.upper()
+    return char.lower()
+
+
+def _perturb_instance(instance, to_case, aug_char_p, num_perturbations):
+    # Generate `num_perturbations` perturbed instances
+    perturbed_instance = [
+        "".join(map(lambda x: _perturb_char(x, to_case, aug_char_p), instance))
+        for _ in range(num_perturbations)
+    ]
+    return perturbed_instance
